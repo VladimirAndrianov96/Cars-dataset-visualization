@@ -38,12 +38,18 @@ ui <- fluidPage(
                       mainPanel(
                                 h1("Sissejuhatus:"),
                                 br(),
+                                p("Autoreid huvitab liiklusõnnetuste kahjude sagedust ja suurust mõjutavate tegurite uurimine visuaalse pildi abil, et välja selgitada mustrid, mille alusel on võimalik ennustada liiklusõnnetuste sageduse tõenäosust või kahju suurust. Nende teadmiste põhjal on võimalik ennustada teatud sõidukitega sõitvate sotsiaalsete gruppide riske, ning kasutada need teadmised erinevate valdkondade otsuste tegemiseks."),
+                                br(),
                                 p("Autorid valisid oma projekti jaoks andmestiku, mis sisaldab auto kindlustus juhtumite andmeid. Andmestik on võetud Kaggle.com veebilehe anmdestikude andmebaasist."),
                                 br(),
-                                h1("Projekti eesmärgid:"),
+                                h1("Antud visualisatsiooniga pakutakse:"),
                                 br(),
-                                p("1. Visualiseerida andmeid."),
-                                p("2. Kursuses 'Andmete visualiseerimine' omandatud meetodite ja teadmiste rakendamine."),
+                                p("1. Andmestiku mugav ülevaade tabeli kujul."),
+                                p("2. Andmestiku tunnuste kirjeldus."),
+                                p("3. Histograam liiklusõnnetuste tabamuste sagedust sõltuvalt vanusest, tulpade arv visualiseerimiseks muutuv 3-50 vahemikus."),
+                                p("4. Tulpdiagramm, millel kuvame õnnetuste arv kahjumi suuruse lõikes, sõltuvalt auto tüübist ja laste arvust perekonnas."),
+                                p("5. Jaotusdiagramm, millel kuvame õnnetuste sagedust sõltuvalt valitud kriteeriumist ning era- ja äritranspordi lõikes."),
+                                p("6. Kursuses 'Andmete visualiseerimine' omandatud meetodite ja teadmiste rakendamine."),
                                 )
                                 )
                   ),
