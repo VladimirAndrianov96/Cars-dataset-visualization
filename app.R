@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
+library(skimr)
+
 ## Loeme andmed, kustutame kõik read kus on puuduvaid andmeid
 carClaims<-read.csv("data/car_insurance_claim.csv",sep = ",", na.strings=c("", "","NA"), header = T)
 ## Eemaldame ID, BIRTH ja CLAIM_FLAG tunnused. Kasutame ainult need andmed, kus CLM_AMT ei ole tühi
@@ -144,7 +146,7 @@ server <- function(input, output, session) {
 
   output$summary <- renderPrint({
     dataset <- carClaims
-    summary(dataset)
+    skim(dataset)
   })
 
     output$tabel <- renderDataTable(
