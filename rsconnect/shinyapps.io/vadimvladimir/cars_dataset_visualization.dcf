@@ -5,7 +5,7 @@ account: vadimvladimir
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5047127
-bundleId: 5214359
+bundleId: 5224076
 url: https://vadimvladimir.shinyapps.io/cars_dataset_visualization/
-when: 1636055678.35336
-lastSyncTime: 1636055678.35336
+when: 1636313397.52325
+lastSyncTime: 1636313397.52326

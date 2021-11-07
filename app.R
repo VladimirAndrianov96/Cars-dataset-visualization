@@ -6,6 +6,15 @@ library(skimr)
 ## Loeme andmed, kustutame kõik read kus on puuduvaid andmeid
 carClaims<-read.csv("data/car_insurance_claim.csv",sep = ",", na.strings=c("", "","NA"), header = T)
 ## Eemaldame ID, BIRTH ja CLAIM_FLAG tunnused. Kasutame ainult need andmed, kus CLM_AMT ei ole tühi
+
+
+## Asenda ingliskeelsed nimed eestikeelsete nimedega
+kov <- c(1:length(carClaims$CAR_USE))
+kov[carClaims$CAR_USE=="Commercial"] <- "Äri"
+kov[carClaims$CAR_USE=="Private"] <- "Isiklik"
+
+carClaims$CAR_USE <- kov
+
 carClaims = carClaims[c(2,4:25,27)]
 carClaims = na.omit(carClaims)
 ### Andmete puhastamine
@@ -27,6 +36,9 @@ carClaims<-carClaims[!(carClaims$CAR_AGE<1),]
 carClaimsFactors <- carClaims[,c(6,8:11,13,16,17,20,24)]
 carClaimsNums <- carClaims[,c(1:5,7,12,14,15,18,19,21:23)]
 
+carClaimsWithColors <- carClaims
+carClaimsWithColors$värv <- as.factor(carClaimsFactors$CAR_TYPE)
+
 ui <- fluidPage(
      titlePanel("Autode kindlustusjuhtumite andmete visualiseerimine", windowTitle = "Kindlustusjuhtumid"),
      helpText("ITB8812 Andmete visualiseerimine (Virumaa).",br(),"Andmete visualiseerimise projekt.",br(), "Vladimir Andrianov, Vadim Aland"),
@@ -40,7 +52,7 @@ ui <- fluidPage(
                                 br(),
                                 p("Autoreid huvitab liiklusõnnetuste kahjude sagedust ja suurust mõjutavate tegurite uurimine visuaalse pildi abil, et välja selgitada mustrid, mille alusel on võimalik ennustada liiklusõnnetuste sageduse tõenäosust või kahju suurust. Nende teadmiste põhjal on võimalik ennustada teatud sõidukitega sõitvate sotsiaalsete gruppide riske, ning kasutada need teadmised erinevate valdkondade otsuste tegemiseks."),
                                 br(),
-                                p("Autorid valisid oma projekti jaoks andmestiku, mis sisaldab auto kindlustus juhtumite andmeid. Andmestik on võetud Kaggle.com veebilehe anmdestikude andmebaasist."),
+                                p("Autorid valisid oma projekti jaoks andmestiku, mis sisaldab auto kindlustus juhtumite andmeid. Andmestik on võetud Kaggle.com veebilehe andmestikude andmebaasist."),
                                 br(),
                                 h1("Antud visualisatsiooniga pakutakse:"),
                                 br(),
@@ -50,6 +62,7 @@ ui <- fluidPage(
                                 p("4. Tulpdiagramm, millel kuvame õnnetuste arv kahjumi suuruse lõikes, sõltuvalt auto tüübist ja laste arvust perekonnas."),
                                 p("5. Jaotusdiagramm, millel kuvame õnnetuste sagedust sõltuvalt valitud kriteeriumist ning era- ja äritranspordi lõikes."),
                                 p("6. Kursuses 'Andmete visualiseerimine' omandatud meetodite ja teadmiste rakendamine."),
+                                p('7. Kontrollime hüpoteesi  "Mida rohkem lapsi autojuhil on, seda turvalisem ta ennast liikluses käitub".'),
                                 )
                                 )
                   ),
@@ -57,39 +70,37 @@ ui <- fluidPage(
            "ANDMED",
                   mainPanel(
                   verbatimTextOutput("summary"),
-                  dataTableOutput("tabel"),),
+                  dataTableOutput("tabel"),width="100%"),
+           
            
                   ),
          tabPanel(
            "TUNNUSED",
            mainPanel(
                       h1("Tunnused:"),
-                      p("INDEX - identification variable (do not use)"),
-                      p("TARGET_FLAG - was car in a crash 1=yes 0=no"),
-                      p("TARGET_AMT - if car was in a crash, what was the cost"),
-                      p("AGE - age of driver"),
-                      p("BLUEBOOK - value of vehicle"),
-                      p("CAR_AGE - vehicle age"),
-                      p(" CAR_TYPE - type of car"),
-                      p("CAR_USE - vehicle use"),
-                      p("CLM_FREQ - # claim past 5 years"),
-                      p("  EDUCATION - max education level"),
-                      p("HOMEKIDS - # children at home"),
-                      p("   HOME_VAL - home value"),
-                      p(" INCOME - income"),
-                      p("   JOB - job cathegory"),
-                      p("  KIDSDRIV - # driving children"),
-                      p("   MSTATUS - marital status"),
-                      p("MVR_PTS - motor vehicle record points"),
-                      p("OLDCLAIM - total claims past 5 years"),
-                      p("PARENT1 - single parent"),
-                      p("RED_CAR - a red car"),
-                      p("REVOKED - licence revoked past 7 years"),
-                      p("SEX - gender"),
-                      p("TIF - time in force"),
-                      p("TRAVTIME - distance to work"),
-                      p("URBANICITY - home/work area"),
-                      p("YOJ - years on job")
+                      p("CLM_AMT - Kui auto oli kahjumijuhtumis, kui suur oli kahjumisuurus dollarites"),
+                      p("AGE - Juhi vanus"),
+                      p("BLUEBOOK - Auto maksumus"),
+                      p("CAR_AGE - Auto vanus"),
+                      p("CAR_TYPE - Auto tüüp"),
+                      p("CAR_USE - Auto kasutamise tüüp (kas äri või era)"),
+                      p("CLM_FREQ - Viimase viie aasta kahjujuhtumite kogus"),
+                      p("EDUCATION - Haridustase"),
+                      p("HOMEKIDS - Laste arv perekonnas"),
+                      p("HOME_VAL - Elukoha maksumus"),
+                      p("INCOME - Sissetulek"),
+                      p("JOB - Töökoha kategooria"),
+                      p("KIDSDRIV - Autojuhulubadega laste arv perekonnas"),
+                      p("MSTATUS - Perekonnaseis"),
+                      p("OLDCLAIM - Viimase viie aasta kahjumisuurus dollarites"),
+                      p("PARENT1 - Üksik vanem perekonnas"),
+                      p("RED_CAR - Punane auto"),
+                      p("REVOKED - Kas viimase seitse aasta järel oli autojuhiluba ära võetud"),
+                      p("SEX - Sugu"),
+                      p("TIF - Kindlustuslepingu kehtivus"),
+                      p("TRAVTIME - Kaugus tööle"),
+                      p("URBANICITY - Kodu/tööpiirkond"),
+                      p("YOJ - Aastat tööl")
                     )
                   ),
 
@@ -111,12 +122,12 @@ ui <- fluidPage(
                     )
                   ),
         tabPanel(
-          "SÕLTUVUS 1",
+          "Sõltuvus laste arvust ja auto tüübist",
           mainPanel(
             sidebarLayout(
               sidebarPanel(
                 radioButtons(inputId = "HOMEKIDS",
-                             label = "1. Vali lapse kogust:",
+                             label = "1. Vali lapse arv:",
                              choices = c(0, 1, 2, 3, 4, 5)),
                 selectInput(inputId = "CAR_TYPE",
                             label = "2. Vali auto tüüpi:",
@@ -126,7 +137,7 @@ ui <- fluidPage(
               mainPanel(
                         br(),
                         p("Sellel paneelil kuvame õnnetuste arv, sõltuvalt auto tüübist ja laste arvust perekonnas. Tulpdiagrammi ehitamiseks valige vähemalt auto tüübi."),
-                        plotOutput("hourlyPlot"),
+                        plotOutput("cartypePlot"),
                         tableOutput("employTable"))
                           )
           
@@ -134,10 +145,10 @@ ui <- fluidPage(
                     )
                   ),
         tabPanel(
-          "SÕLTUVUS 2",
+          "Sõltuvus tunnusest",
           sidebarLayout(
             sidebarPanel(selectInput("var",
-                                     label = "Vali tunnust :",
+                                     label = "Vali tunnust:",
                                      choices = names(carClaimsNums[,-(13)]))),
             mainPanel(
               br(),
@@ -171,7 +182,7 @@ server <- function(input, output, session) {
         facet_wrap(~ CAR_USE)+
         theme(legend.position = "none")+
         scale_color_manual(values=c("#8B4513","#009FE3","#00983A","#FFDE00","#E30613","#82368C"))+
-        xlab("CLM_AMT")
+        xlab("Kahjumi suurus $")
       ggplotly(p,tooltip = c("CLM_AMT",input$var,"CAR_TYPE"))
     })
  
@@ -179,14 +190,17 @@ server <- function(input, output, session) {
       x <- carClaims$AGE
       bins <- seq(min(x), max(x), length.out = input$bins + 1)
       hist(x, breaks = bins, col = "#75AADB", border = "white",
-           xlab = "Age",
-           main = "Histogram of driver's age") })
+           xlab = "Vanus",
+           main = "Juhi vanuse histogramm",
+           ylab = "Sagedus (korda)") })
 
-    output$hourlyPlot <- renderPlot({
-      carClaims %>%
+    output$cartypePlot <- renderPlot({
+      carClaimsWithColors %>%
         filter(HOMEKIDS == input$HOMEKIDS,
                CAR_TYPE %in% input$CAR_TYPE) %>%
-        ggplot(aes(CLM_AMT)) +
+        ggplot(aes(CLM_AMT,fill=värv)) +
+        ylab("Sagedus (korda)")+
+        xlab("Kahjumi suurus $")+
         geom_histogram()
     }) 
 }
