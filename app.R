@@ -195,7 +195,7 @@ server <- function(input, output, session) {
   corr <- round(cor(carClaimsModified),1)
   
   output$corrplot <- renderPlot({
-    ggcorrplot(corr,method = "circle")
+    ggcorrplot(corr,hc.order=TRUE,type="lower",lab=TRUE)
   }, height = 800, width = 800)
   
   output$distPlot <- renderPlotly({
