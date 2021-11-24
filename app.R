@@ -1,7 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(plotly)
-library(skimr)
+library(ggcorrplot)
+library(summarytools)
 
 ## Loeme andmed, kustutame kõik read kus on puuduvaid andmeid
 carClaims<-read.csv("data/car_insurance_claim.csv",sep = ",", na.strings=c("", "","NA"), header = T)
@@ -39,6 +40,21 @@ carClaimsNums <- carClaims[,c(1:5,7,12,14,15,18,19,21:23)]
 carClaimsWithColors <- carClaims
 carClaimsWithColors$värv <- as.factor(carClaimsFactors$CAR_TYPE)
 
+
+carClaimsModified <- carClaims
+carClaimsModified$PARENT1 <- as.numeric(as.factor(carClaimsFactors$PARENT1))
+carClaimsModified$MSTATUS <- as.numeric(as.factor(carClaimsFactors$MSTATUS))
+carClaimsModified$GENDER <- as.numeric(as.factor(carClaimsFactors$GENDER))
+carClaimsModified$EDUCATION <- as.numeric(as.factor(carClaimsFactors$EDUCATION))
+carClaimsModified$OCCUPATION <- as.numeric(as.factor(carClaimsFactors$OCCUPATION))
+carClaimsModified$CAR_USE <- as.numeric(as.factor(carClaimsFactors$CAR_USE))
+carClaimsModified$CAR_TYPE <- as.numeric(as.factor(carClaimsFactors$CAR_TYPE))
+carClaimsModified$RED_CAR <- as.numeric(as.factor(carClaimsFactors$RED_CAR))
+carClaimsModified$REVOKED <- as.numeric(as.factor(carClaimsFactors$REVOKED))
+carClaimsModified$URBANICITY <- as.numeric(as.factor(carClaimsFactors$URBANICITY))
+
+
+
 ui <- fluidPage(
      titlePanel("Autode kindlustusjuhtumite andmete visualiseerimine", windowTitle = "Kindlustusjuhtumid"),
      helpText("ITB8812 Andmete visualiseerimine (Virumaa).",br(),"Andmete visualiseerimise projekt.",br(), "Vladimir Andrianov, Vadim Aland"),
@@ -71,11 +87,15 @@ ui <- fluidPage(
                   mainPanel(
                   verbatimTextOutput("summary"),
                   dataTableOutput("tabel"),width="100%"),
-           
-           
                   ),
          tabPanel(
-           "TUNNUSED",
+           "Korrelatsioonimaatriks",
+           mainPanel(
+             plotOutput(outputId = "corrplot",  width = "100%"),
+            )
+         ),
+         tabPanel(
+           "Tunnused",
            mainPanel(
                       h1("Tunnused:"),
                       p("CLM_AMT - Kui auto oli kahjumijuhtumis, kui suur oli kahjumisuurus dollarites"),
@@ -105,7 +125,7 @@ ui <- fluidPage(
                   ),
 
         tabPanel(
-        "HISTOGRAAM",
+        "Juhtide vanuseline jaotus",
         sidebarLayout(
           sidebarPanel(
               sliderInput(inputId = "bins",
@@ -117,9 +137,7 @@ ui <- fluidPage(
           mainPanel(
             br(),
             p("Sellel paneelil kuvame liiklusõnnetuste tabamuste sagedust sõltuvalt vanusest"),
-              plotOutput(outputId = "Histogram") 
-                    )
-                    )
+              plotOutput(outputId = "Histogram")))
                   ),
         tabPanel(
           "Sõltuvus laste arvust ja auto tüübist",
@@ -156,14 +174,14 @@ ui <- fluidPage(
               plotlyOutput("distPlot", width = "80%",height="auto"))      
                         )
                 ),
-)
+          )
 )
     
 server <- function(input, output, session) {
 
   output$summary <- renderPrint({
     dataset <- carClaims
-    skim(dataset)
+    dfSummary(dataset)
   })
 
     output$tabel <- renderDataTable(
@@ -173,6 +191,12 @@ server <- function(input, output, session) {
             pageLength = 5,scrollX = TRUE
             )
       )  
+    
+    corr <- round(cor(carClaimsModified),1)
+    
+    output$corrplot <- renderPlot({
+      ggcorrplot(corr,method = "circle")
+    }, height = 800, width = 800)
     
     output$distPlot <- renderPlotly({
       p <- ggplot(carClaims, aes_string(x = "CLM_AMT", y =input$var,
